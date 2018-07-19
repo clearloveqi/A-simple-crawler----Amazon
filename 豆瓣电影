@@ -1,0 +1,39 @@
+from pyquery import PyQuery as pq
+import requests
+import random
+
+
+def get_url(url):
+    header = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, sdch',
+        'Accept-Language': 'zh-CN,zh;q=0.8',
+        'Connection': 'keep-alive',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.235'
+    }
+    timeout = random.choice(range(40, 80))
+    urls = requests.get(url, headers=header, timeout=timeout)
+    return urls.json()  # json
+
+
+def get_data(urls):
+    content = pq(urls)
+    for contents in content:
+        # # contents是一个列表，里面嵌套字典
+        move = {}
+        move['排名'] = contents.get('rank')
+        move['标题'] = contents.get('title')
+        move['类型'] = contents.get('types')
+        move['评分'] = contents.get('score')
+        yield move
+
+
+if __name__ == "__main__":
+    ur = "https://movie.douban.com/j/chart/top_list?type=10&interval_id=100:90&action=&start="
+    for urs in range(0, 162, 20):
+
+        url = (ur+str(urs))
+        go = get_url(url)
+        aha = get_data(go)
+        for a_ha in aha:
+            print(a_ha)
