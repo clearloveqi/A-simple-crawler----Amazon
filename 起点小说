@@ -1,0 +1,38 @@
+from selenium import webdriver
+from pyquery import PyQuery as pq
+
+
+browser = webdriver.Firefox()  # 初始化浏览器对象
+browser.implicitly_wait(10)   # 隐式等待20秒
+browser.get("https://www.qidian.com/free/all")  # 请求页面
+get_page = browser.page_source
+do_pq = pq(get_page)
+get_li = do_pq(".all-img-list.cf li")  # 得到所有class=all-img-list cf的所有li层
+# print(type(get_li))  <class 'pyquery.pyquery.PyQuery'>
+get_li_item = get_li.items()
+sun = []
+for li in get_li_item:
+    # print(li)
+    # print()
+    # print(type(li))
+    get_name = li("h4").text()
+    get_info = li(".author").text()
+    get_intro = li(".intro").text()
+    sum = {}
+    sum["名称"] = get_name
+    sum["信息"] = get_info
+    sum["简介"] = get_intro
+    sun.append(sum)
+# print(sun)
+browser.close()
+with open("/home/just_study/桌面/helloworld/起点.txt", "w+") as f:
+    # f.write(repr(sun)+'\n')
+    for line in sun:   # 换行
+        f.write(repr(line))
+        f.write('\n')
+# 查找节点：单个节点时候用find_element_by_??
+#          多个节点用find_elements_by_
+# 获取属性：get_attribute() 传入属性名
+#           .text 文本值  .id 节点id .tag_name标签名称
+
+
