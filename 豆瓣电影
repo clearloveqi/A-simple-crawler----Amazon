@@ -1,39 +1,42 @@
 from pyquery import PyQuery as pq
-import requests
-import random
+from selenium import webdriver
+import time
 
 
 def get_url(url):
-    header = {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, sdch',
-        'Accept-Language': 'zh-CN,zh;q=0.8',
-        'Connection': 'keep-alive',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.235'
-    }
-    timeout = random.choice(range(40, 80))
-    urls = requests.get(url, headers=header, timeout=timeout)
-    return urls.json()  # json
+    browser = webdriver.Firefox()
+    # browser.implicitly_wait(5)   # 隐式等待
+    browser.get(url)
+    js = "var q=document.documentElement.scrollTop=10000000000"  # 控制滚动条拉到最低
+    for i in range(0, 10):   # 循环控制滚动条
+        browser.execute_script(js)  # 应用js方法
+        time.sleep(3)  # 睡眠等待加载
+    # browser.implicitly_wait(10)  # 隐式等待
+    get_page = browser.page_source
+    browser.close()
+    return get_page
 
 
-def get_data(urls):
-    content = pq(urls)
-    for contents in content:
-        # # contents是一个列表，里面嵌套字典
+def do_sth(page):
+    get = pq(page)
+    get_div = get(".movie-list-item.unplayable.unwatched")  # 获取每一个电影信息div
+    get_all = []
+    for j in get_div.items():  # 得到生成器，循环遍历
+        # print(j, type(j))
         move = {}
-        move['排名'] = contents.get('rank')
-        move['标题'] = contents.get('title')
-        move['类型'] = contents.get('types')
-        move['评分'] = contents.get('score')
-        yield move
+        move['名字'] = j('.movie-name-text').text()
+        move['类型'] = j('.movie-misc').text()
+        move['排名'] = j('.rank-num').text()
+        move['评分'] = j('.rating_num').text()
+        get_all.append(move)
+    return get_all
 
 
-if __name__ == "__main__":
-    ur = "https://movie.douban.com/j/chart/top_list?type=10&interval_id=100:90&action=&start="
-    for urs in range(0, 162, 20):
-
-        url = (ur+str(urs))
-        go = get_url(url)
-        aha = get_data(go)
-        for a_ha in aha:
-            print(a_ha)
+if __name__=="__main__":
+    url = "https://movie.douban.com/typerank?type_name=%E6%82%AC%E7%96%91&type=10&interval_id=100:90&action="
+    page = get_url(url)
+    all = do_sth(page)
+    with open("/home/just_study/桌面/helloworld/豆瓣电影.txt", 'w+') as f:
+        for line in all:
+            f.write(repr(line))
+            f.write("\n")
