@@ -1,0 +1,37 @@
+一：firefox headless模式
+
+    from selenium import webdriver
+    options = webdriver.FirefoxOptions()
+    options.set_headless()     
+    # options.add_argument('-headless')
+    options.add_argument('--disable-gpu')
+    driver=webdriver.Firefox(firefox_options=options
+    driver.get('http://httpbin.org/user-agent')
+    driver.get_screenshot_as_file('test.png')
+    driver.close()
+
+实例化FirefoxOptions
+
+用set_headless
+
+或add_headless
+
+实例化firefox浏览器的时候，增加参数firefox_options=options
+
+这样就可以了。
+
+'--disable-gpu'这句是禁用GPU加速。
+
+三：chrome headless模式
+
+    from selenium import webdriver
+    options=webdriver.ChromeOptions()
+    options.set_headless()
+    # options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    driver=webdriver.Chrome(options=options)
+    driver.get('http://httpbin.org/user-agent')
+    driver.get_screenshot_as_file('test.png')
+    driver.close()
+    
+    
