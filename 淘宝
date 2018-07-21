@@ -1,0 +1,66 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from pyquery import PyQuery as pq
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+
+options = webdriver.FirefoxOptions()  # 实例化FirefoxOptions
+options.add_argument('-headless')  # 设置无界面模式firefox_options=options
+browser = webdriver.Firefox(firefox_options=options)
+# 实例化火狐,加参数
+
+
+def get_page(page):
+    try:
+        url = "https://s.taobao.com/search?q=iphone&bcoffset=7&p4ppushleft=1%2C48&ntoffset=7&s=0"
+        browser.get(url)
+        wait = WebDriverWait(browser, 10)
+        print("正在爬取第 %s 页" % page)
+        if page > 1:
+            input = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#mainsrp-pager .form input")))
+            # 等待10秒钟,直到class:mainsrp-pager下的父节点为<div class:form 的子节点input出现,否则EC抛出超时异常
+            # 确保页码输入框出现
+            submit = wait.until(EC.element_to_be_clickable((
+                By.CSS_SELECTOR, "#mainsrp-pager .form span.btn.J_Submit")))
+            # 找到确认按钮
+            # get_shop()  # 跳转到获取商品属性函数
+            input.clear()  # 清除输入框中的内容
+            input.send_keys(page)  # 输入page
+            submit.click()  # 点击确定
+            # 高亮确认,待续
+            get_shop()  # 跳转到获取商品属性函数
+        else:
+            get_shop()
+    except TimeoutException:
+        get_page(page)
+
+
+def get_shop():
+    html = browser.page_source  # 获取页面源代码
+    doc = pq(html)
+    get_product = doc("#mainsrp-itemlist .items .item.J_MouserOnverReq").items()
+    go = []
+    for a in get_product:
+        ok = {}
+        ok['img'] = a('.pic .img').attr('data-src')  # 高清大图链接
+        ok['name'] = a('.title').text()
+        ok['price'] = a('.price').text()
+        ok['buy'] = a('.deal-cnt').text()
+        ok['location'] = a('.location').text()
+        go.append(ok)
+        gg = "/home/just_study/桌面/helloworld/taobao/taobao"+str(i)+".txt"
+        with open(gg, 'w+') as f:
+            for line in go:
+                f.write(repr(line))
+                f.write("\n")
+    # get_page()
+
+
+if __name__ == '__main__':
+    for i in range(1, 100):
+        get_page(i)
+
+# 垃圾代码,能爬多少,看运气
