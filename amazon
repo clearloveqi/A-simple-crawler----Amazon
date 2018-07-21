@@ -2,10 +2,19 @@ from selenium import webdriver
 from pyquery import PyQuery as pq
 
 
+# options = webdriver.FirefoxOptions()  # 实例化FirefoxOptions
+# options.add_argument('-headless')  # 设置无界面模式
+# browser = webdriver.Firefox(firefox_options=options)
+# # 实例化火狐,加参数firefox_options=options
+# browser.get("https://www.baidu.com")
+# a = browser.page_source
+# print(a)
+# browser.close()
+
+
+
 def get_url(url):
-    # options = webdriver.FirefoxOptions()  # 实例化FirefoxOptions
-    # options.add_argument('-headless')  # 设置无界面模式
-    browser = webdriver.Firefox()   # 实例化火狐,加参数firefox_options=options
+    browser = webdriver.Firefox()   
     browser.get(url)  # 得到url
     # browser.get_screenshot_as_file('test.png')  # 测试用，截图
     b_pq = browser.page_source  # 得到网页源代码
