@@ -1,0 +1,36 @@
+from selenium import webdriver
+from pyquery import PyQuery as pq
+
+
+def get_pq(url):
+	options = webdriver.FirefoxOptions()
+	options.add_argument('-headless')
+	html = webdriver.Firefox(firefox_options=options) # set headless model 
+	html.get(url)
+	doc = html.page_source
+	doc = pq(doc)
+	html.close()
+	# print(doc)
+	return doc
+
+
+def get_url(doc):
+	urs = doc('#list dd').items()
+	# print(urs)
+	u = "http://www.biquge.com.tw"
+	urls = []
+	for i in urs:
+		get = {}
+		get['href'] = i('a').attr('href')
+		get['name'] = i.text()
+		page_url = u + str(get['href'])
+		get_page_pq = get_pq(page_url)
+		get_page_text = get_page_pq('#content').text()
+		with open('/home/just_study/Desktop/sth/xiaoshuo/'+str(get['name'])+'.txt', 'w+') as f:
+			f.write(repr(get_page_text))
+
+
+if __name__ == '__main__':
+	doc = get_pq("http://www.biquge.com.tw/14_14055/")
+	get_url(doc)
+	
